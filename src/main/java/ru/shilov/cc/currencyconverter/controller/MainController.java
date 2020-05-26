@@ -1,6 +1,7 @@
 package ru.shilov.cc.currencyconverter.controller;
 
 
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -16,7 +17,7 @@ public class MainController {
         this.convertationService = convertationService;
     }
 
-    @GetMapping("/convert")
+    @GetMapping(value = "/convert", produces= MediaType.APPLICATION_JSON_VALUE)
     public Result main(@RequestParam("amount") Double amount,
                        @RequestParam("fromCode") String fromCode,
                        @RequestParam("toCode") String toCode) {
