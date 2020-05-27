@@ -1,6 +1,5 @@
 package ru.shilov.cc.currencyconverter.entity;
 
-import com.fasterxml.jackson.annotation.JsonRootName;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
