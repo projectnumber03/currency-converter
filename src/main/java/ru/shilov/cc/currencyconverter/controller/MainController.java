@@ -18,9 +18,9 @@ public class MainController {
     }
 
     @GetMapping(value = "/convert", produces= MediaType.APPLICATION_JSON_VALUE)
-    public Result main(@RequestParam("amount") Double amount,
-                       @RequestParam("fromCode") String fromCode,
-                       @RequestParam("toCode") String toCode) {
+    public Result main(@RequestParam("amount") final Double amount,
+                       @RequestParam("fromCode") final String fromCode,
+                       @RequestParam("toCode") final String toCode) {
         return convertationService.convert(fromCode, toCode, amount);
     }
 
