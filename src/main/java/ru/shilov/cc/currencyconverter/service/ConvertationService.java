@@ -1,5 +1,6 @@
 package ru.shilov.cc.currencyconverter.service;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import ru.shilov.cc.currencyconverter.entity.Course;
@@ -11,8 +12,11 @@ import java.util.Objects;
 @Service
 public class ConvertationService {
 
+    @Value("${currency.server.address}")
+    private String url;
+
     public Result convert(final String fromCode, final String toCode, final Double amount) {
-        final String formattedURL = String.format("http://www.floatrates.com/daily/%s.json", toCode.toLowerCase());
+        final String formattedURL = String.format(url, toCode.toLowerCase());
         final Course course = new RestTemplate().getForObject(formattedURL, Course.class);
         final Double rate;
         if (course == null) rate = 0.0;
