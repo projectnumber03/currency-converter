@@ -1,30 +1,60 @@
 package ru.shilov.cc.currencyconverter.service;
 
-import org.springframework.beans.factory.annotation.Value;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
-import ru.shilov.cc.currencyconverter.entity.Course;
-import ru.shilov.cc.currencyconverter.entity.Currency;
+import ru.shilov.cc.currencyconverter.config.CourseConfig;
 import ru.shilov.cc.currencyconverter.entity.Result;
+import ru.shilov.cc.currencyconverter.entity.ValuteCourse;
+import ru.shilov.cc.currencyconverter.entity.ValuteDetail;
 
-import java.util.Objects;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Comparator;
+import java.util.Date;
 
 @Service
+@RequiredArgsConstructor
 public class ConvertationService {
 
-    @Value("${currency.server.address}")
-    private String url;
+    private final ValuteCourseService valuteCourseService;
 
-    public Result convert(final String fromCode, final String toCode, final Double amount) {
-        final String formattedURL = String.format(url, toCode.toLowerCase());
-        final Course course = new RestTemplate().getForObject(formattedURL, Course.class);
-        final Double rate;
-        if (course == null) rate = 0.0;
-        else rate = course.getCurrencies().stream()
-                .filter(Objects::nonNull)
-                .filter(currency -> fromCode.equals(currency.getCode()))
-                .map(Currency::getInverseRate).findAny().orElse(0.0);
-        return new Result(fromCode, toCode, amount * rate);
+    private final ValuteDetailService valuteDetailService;
+
+    private final CourseConfig courseConfig;
+
+    public Result convert(final ConvertationService.Options options) {
+        return getResult(options);
+    }
+
+    private Result getResult(final ConvertationService.Options options) {
+        final ValuteDetail fromValuteDetail = valuteDetailService.findByCharCode(options.getFromCode());
+        final ValuteCourse fromValuteCourse = valuteCourseService.findByValuteDetail(fromValuteDetail).stream().max(Comparator.comparing(ValuteCourse::getDate)).orElseThrow(RuntimeException::new);
+        final ValuteDetail toValuteDetail = valuteDetailService.findByCharCode(options.getToCode());
+        final ValuteCourse toValuteCourse = valuteCourseService.findByValuteDetail(toValuteDetail).stream().max(Comparator.comparing(ValuteCourse::getDate)).orElseThrow(RuntimeException::new);
+        if (!isActualCourse(fromValuteCourse) || !isActualCourse(toValuteCourse)) {
+            valuteCourseService.saveAll(courseConfig.valute().values());
+            return getResult(options);
+        }
+        return new Result(
+                options.getFromCode(),
+                options.getToCode(),
+                options.getAmount() * fromValuteCourse.getValue() / toValuteCourse.getValue(),
+                new Date()
+        );
+    }
+
+    private boolean isActualCourse(ValuteCourse valuteCourse) {
+        return !valuteCourse.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate().isBefore(LocalDate.now());
+    }
+
+    @Getter
+    @AllArgsConstructor
+    public class Options {
+        final String fromCode;
+        final String toCode;
+        final Double amount;
     }
 
 }

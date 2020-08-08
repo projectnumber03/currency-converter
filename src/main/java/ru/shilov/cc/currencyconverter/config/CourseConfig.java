@@ -1,0 +1,72 @@
+package ru.shilov.cc.currencyconverter.config;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.client.RestTemplate;
+import ru.shilov.cc.currencyconverter.entity.ValuteCourse;
+import ru.shilov.cc.currencyconverter.entity.ValuteDetail;
+import ru.shilov.cc.currencyconverter.entity.ValuteDto;
+import ru.shilov.cc.currencyconverter.entity.ValuteWrapper;
+import ru.shilov.cc.currencyconverter.service.ValuteCourseService;
+import ru.shilov.cc.currencyconverter.service.ValuteDetailService;
+
+import java.util.Date;
+import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+@Configuration
+@RequiredArgsConstructor
+public class CourseConfig {
+
+    @Value("${valute.server.address}")
+    private String url;
+
+    private final ValuteDetailService valuteDetailService;
+
+    private final ValuteCourseService valuteCourseService;
+
+    public ValuteWrapper valuteWrapper() {
+        return new RestTemplate().getForObject(url, ValuteWrapper.class);
+    }
+
+    private ValuteDetail buildDetail(final ValuteDto dto) {
+        final ValuteDetail valuteDetail = valuteDetailService.findByCharCode(dto.getCharCode());
+        final UUID id = Objects.isNull(valuteDetail) ? UUID.randomUUID() : valuteDetail.getId();
+        return ValuteDetail.builder()
+                .id(id)
+                .name(dto.getName())
+                .charCode(dto.getCharCode())
+                .numCode(dto.getNumCode())
+                .build();
+    }
+
+    public ValuteCourse buildCourse(final ValuteDto dto) {
+        return ValuteCourse.builder()
+                .id(UUID.randomUUID())
+                .date(new Date())
+                .nominal(dto.getNominal())
+                .value(dto.getValue())
+                .build();
+    }
+
+    public Map<ValuteDetail, ValuteCourse> valute() {
+        return valuteWrapper().getValutes().stream()
+                .collect(Collectors.toMap(this::buildDetail, this::buildCourse))
+                .entrySet().stream().peek(entry -> entry.getValue().setValuteDetail(entry.getKey()))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+    }
+
+    @Bean
+    public void init() {
+        final Map<ValuteDetail, ValuteCourse> valute = valute();
+        valuteCourseService.deleteAll();
+        valuteDetailService.deleteAll();
+        valuteDetailService.saveAll(valute.keySet());
+        valuteCourseService.saveAll(valute.values());
+    }
+
+}
