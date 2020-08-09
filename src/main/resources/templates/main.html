@@ -1,0 +1,96 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css">
+    <!-- Bootstrap core CSS -->
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Material Design Bootstrap -->
+    <link href="/static/css/mdb.min.css" rel="stylesheet">
+    <!-- Your custom styles (optional) -->
+    <link href="/static/css/style.css" rel="stylesheet">
+    <link href="/static/css/shCore.css" rel="stylesheet" type="text/css" />
+    <link href="/static/css/shThemeDefault.css" rel="stylesheet" type="text/css" />
+    <title>Конвертер</title>
+</head>
+<body>
+    <div style="height: 100vh">
+        <div class="d-flex justify-content-center align-items-center p-5">
+            <!-- Default form login -->
+            <form class="text-center border border-light p-5" action="/converter" method="post">
+                <p class="h4 mb-4">Конвертер</p>
+                <div class="row mb-4">
+                    <div class="col">
+                        <select class="form-control select2" id="fromCode" name="fromCode" style="width: 100%;">
+                            <option th:each="charCode : ${charCodes}" th:value="${charCode}" th:text="${charCode}"></option>
+                        </select>
+                    </div>
+                    <div class="col">
+                        <select class="form-control select2" id="toCode" name="toCode" style="width: 100%;">
+                            <option th:each="charCode : ${charCodes}" th:value="${charCode}" th:text="${charCode}"></option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <input type="text" id="sourceAmount" class="form-control mb-4" placeholder="У меня есть" name="sourceAmount">
+                    </div>
+                    <div class="col">
+                        <input type="text" id="destinationAmount" class="form-control mb-4" placeholder="Хочу приобрести" name="destinationAmount" disabled>
+                    </div>
+                </div>
+                <div class="btn-toolbar justify-content-center">
+                    <input type="hidden" id="_csrf" name="_csrf" th:value="${_csrf.token}"/>
+                    <div class="btn-group mr-2">
+                        <button class="btn btn-info btn-block btn-black my-4" type="button" id="convert">Конвертировать</button>
+                    </div>
+                    <div class="btn-group mr-2">
+                        <button class="btn btn-info btn-block btn-black my-4" type="submit" id="history" name="history">История операций</button>
+                    </div>
+                </div>
+            </form>
+            <!-- Default form login -->
+        </div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <!-- JQuery -->
+    <script type="text/javascript" src="/static/js/jquery-3.4.1.min.js"></script>
+    <!-- Bootstrap tooltips -->
+    <script type="text/javascript" src="/static/js/popper.min.js"></script>
+    <!-- Bootstrap core JavaScript -->
+    <script type="text/javascript" src="/static/js/bootstrap.min.js"></script>
+    <!-- MDB core JavaScript -->
+    <script type="text/javascript" src="/static/js/mdb.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            var token = $('#_csrf').val();
+            $("#convert").click(function () {
+                var options = {
+                    amount: $("#sourceAmount").val(),
+                    fromCode: $("#fromCode").val(),
+                    toCode: $("#toCode").val()
+                };
+                $.ajax({
+                    type: "POST",
+                    url: "/convert",
+                    data: options,
+                    beforeSend: function (xhr) {
+                        xhr.setRequestHeader("X-CSRF-TOKEN", token);
+                    },
+                    success: function (destinationAmount) {
+                        $("#destinationAmount").val(destinationAmount)
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

@@ -10,7 +10,7 @@ import ru.shilov.cc.currencyconverter.util.ValueDeserializer;
 @Getter
 @Setter
 @NoArgsConstructor
-public class ValuteDto {
+public final class ValuteDto {
 
     @JacksonXmlProperty(localName = "NumCode")
     private String numCode;

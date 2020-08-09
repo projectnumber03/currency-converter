@@ -6,10 +6,11 @@ import ru.shilov.cc.currencyconverter.entity.ValuteDetail;
 import ru.shilov.cc.currencyconverter.repo.ValuteDetailRepo;
 
 import java.util.Collection;
+import java.util.List;
 
 @Service
 @AllArgsConstructor
-public class ValuteDetailService {
+public final class ValuteDetailService {
 
     private final ValuteDetailRepo valuteDetailRepo;
 
@@ -21,12 +22,12 @@ public class ValuteDetailService {
         valuteDetailRepo.saveAll(valuteDetails);
     }
 
-    public void deleteAll() {
-        valuteDetailRepo.deleteAll();
-    }
-
     public ValuteDetail findByCharCode(final String charCode) {
         return valuteDetailRepo.findByCharCode(charCode);
+    }
+
+    public List<ValuteDetail> findAll() {
+        return valuteDetailRepo.findAll();
     }
 
 }

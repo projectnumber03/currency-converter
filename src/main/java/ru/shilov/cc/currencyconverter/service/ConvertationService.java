@@ -9,14 +9,12 @@ import ru.shilov.cc.currencyconverter.entity.Result;
 import ru.shilov.cc.currencyconverter.entity.ValuteCourse;
 import ru.shilov.cc.currencyconverter.entity.ValuteDetail;
 
-import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.Comparator;
 import java.util.Date;
 
 @Service
 @RequiredArgsConstructor
-public class ConvertationService {
+public final class ConvertationService {
 
     private final ValuteCourseService valuteCourseService;
 
@@ -33,25 +31,23 @@ public class ConvertationService {
         final ValuteCourse fromValuteCourse = valuteCourseService.findByValuteDetail(fromValuteDetail).stream().max(Comparator.comparing(ValuteCourse::getDate)).orElseThrow(RuntimeException::new);
         final ValuteDetail toValuteDetail = valuteDetailService.findByCharCode(options.getToCode());
         final ValuteCourse toValuteCourse = valuteCourseService.findByValuteDetail(toValuteDetail).stream().max(Comparator.comparing(ValuteCourse::getDate)).orElseThrow(RuntimeException::new);
-        if (!isActualCourse(fromValuteCourse) || !isActualCourse(toValuteCourse)) {
+        if (!valuteCourseService.isActualCourse(fromValuteCourse) || !valuteCourseService.isActualCourse(toValuteCourse)) {
             valuteCourseService.saveAll(courseConfig.valute().values());
+            valuteCourseService.save(courseConfig.roubleCourse());
             return getResult(options);
         }
         return new Result(
                 options.getFromCode(),
                 options.getToCode(),
+                options.getAmount(),
                 options.getAmount() * fromValuteCourse.getValue() / toValuteCourse.getValue(),
                 new Date()
         );
     }
 
-    private boolean isActualCourse(ValuteCourse valuteCourse) {
-        return !valuteCourse.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate().isBefore(LocalDate.now());
-    }
-
     @Getter
     @AllArgsConstructor
-    public class Options {
+    public static class Options {
         final String fromCode;
         final String toCode;
         final Double amount;

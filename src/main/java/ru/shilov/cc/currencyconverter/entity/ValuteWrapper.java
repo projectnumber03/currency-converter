@@ -14,7 +14,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @JacksonXmlRootElement
-public class ValuteWrapper {
+public final class ValuteWrapper {
 
     @JacksonXmlProperty(localName = "Valute")
     @JacksonXmlElementWrapper(useWrapping = false)

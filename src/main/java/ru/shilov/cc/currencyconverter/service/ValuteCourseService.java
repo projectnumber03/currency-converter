@@ -6,12 +6,14 @@ import ru.shilov.cc.currencyconverter.entity.ValuteCourse;
 import ru.shilov.cc.currencyconverter.entity.ValuteDetail;
 import ru.shilov.cc.currencyconverter.repo.ValuteCourseRepo;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Collection;
 import java.util.List;
 
 @Service
 @AllArgsConstructor
-public class ValuteCourseService {
+public final class ValuteCourseService {
 
     private final ValuteCourseRepo valuteCourseRepo;
 
@@ -23,12 +25,12 @@ public class ValuteCourseService {
         valuteCourseRepo.saveAll(valuteCourses);
     }
 
-    public void deleteAll() {
-        valuteCourseRepo.deleteAll();
-    }
-
     public List<ValuteCourse> findByValuteDetail(final ValuteDetail valuteDetail) {
         return valuteCourseRepo.findByValuteDetail(valuteDetail);
+    }
+
+    public boolean isActualCourse(final ValuteCourse valuteCourse) {
+        return !valuteCourse.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate().isBefore(LocalDate.now());
     }
 
 }

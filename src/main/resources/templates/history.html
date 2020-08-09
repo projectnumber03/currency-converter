@@ -1,0 +1,72 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css">
+    <!-- Bootstrap core CSS -->
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Material Design Bootstrap -->
+    <link href="/static/css/mdb.min.css" rel="stylesheet">
+    <!-- Your custom styles (optional) -->
+    <link href="/static/css/style.css" rel="stylesheet">
+    <link href="/static/css/shCore.css" rel="stylesheet" type="text/css"/>
+    <link href="/static/css/shThemeDefault.css" rel="stylesheet" type="text/css"/>
+    <title>История операций</title>
+</head>
+<body>
+<main class="mt-5">
+    <!--Main container-->
+    <div class="container">
+        <!-- Default form login -->
+        <form class="text-center border border-light p-5" action="/history" method="post">
+            <p class="h4 mb-4">История</p>
+            <div class="row mb-4">
+                <table id="display-table" class="table table-bordered table-hover">
+                    <thead class="black white-text">
+                    <tr>
+                        <th>Исходная валюта</th>
+                        <th>Целевая валюта</th>
+                        <th>Исходная сумма</th>
+                        <th>Получаемая сумма</th>
+                        <th>Дата</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="result : ${results}">
+                        <td th:text="${result.getSourceCode()}"></td>
+                        <td th:text="${result.getDestinationCode()}"></td>
+                        <td th:text="${#numbers.formatDecimal(result.getSourceAmount(), 1, 2, 'COMMA')}"></td>
+                        <td th:text="${#numbers.formatDecimal(result.getDestinationAmount(), 1, 2, 'COMMA')}"></td>
+                        <td th:text="${#dates.format(result.getDate(), 'dd.MM.yyyy')}"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="btn-toolbar justify-content-center">
+                <div class="btn-group mr-2">
+                    <input type="hidden" name="_csrf" th:value="${_csrf.token}"/>
+                    <button class="btn btn-info btn-block btn-black my-4" type="submit" id="back" name="back">Назад
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</main>
+
+
+<script type="text/javascript" src="/static/js/jquery-3.4.1.min.js"></script>
+<!-- Bootstrap tooltips -->
+<script type="text/javascript" src="/static/js/popper.min.js"></script>
+<!-- Bootstrap core JavaScript -->
+<script type="text/javascript" src="/static/js/bootstrap.min.js"></script>
+<!-- MDB core JavaScript -->
+<script type="text/javascript" src="/static/js/mdb.min.js"></script>
+</body>
+</html>

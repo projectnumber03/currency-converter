@@ -15,7 +15,7 @@ import java.util.UUID;
 @SuperBuilder
 @NoArgsConstructor
 @Table(name = "valute_course")
-public class ValuteCourse {
+public final class ValuteCourse {
 
     @Id
     private UUID id;
