@@ -26,7 +26,7 @@ public class CourseConfig {
 
     private final ValuteCourseService valuteCourseService;
 
-    public ValuteWrapper valuteWrapper() {
+    private ValuteWrapper valuteWrapper() {
         return new RestTemplate().getForObject(url, ValuteWrapper.class);
     }
 
@@ -41,7 +41,7 @@ public class CourseConfig {
                 .build();
     }
 
-    public ValuteCourse buildCourse(final ValuteDto dto) {
+    private ValuteCourse buildCourse(final ValuteDto dto) {
         final ValuteDetail valuteDetail = valuteDetailService.findByCharCode(dto.getCharCode());
         final List<ValuteCourse> valuteCourses = valuteCourseService.findByValuteDetail(valuteDetail);
         if (!valuteCourses.isEmpty() && valuteCourses.stream().anyMatch(valuteCourseService::isActualCourse)) {
@@ -55,7 +55,7 @@ public class CourseConfig {
                 .build();
     }
 
-    public ValuteDetail buildDetail() {
+    private ValuteDetail buildDetail() {
         final ValuteDetail valuteDetail = valuteDetailService.findByCharCode("RUB");
         final UUID id = Objects.isNull(valuteDetail) ? UUID.randomUUID() : valuteDetail.getId();
         return ValuteDetail.builder()
