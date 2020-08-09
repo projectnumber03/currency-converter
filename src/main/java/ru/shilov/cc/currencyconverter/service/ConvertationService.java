@@ -33,7 +33,7 @@ public final class ConvertationService {
         final ValuteCourse toValuteCourse = valuteCourseService.findByValuteDetail(toValuteDetail).stream().max(Comparator.comparing(ValuteCourse::getDate)).orElseThrow(RuntimeException::new);
         if (!valuteCourseService.isActualCourse(fromValuteCourse) || !valuteCourseService.isActualCourse(toValuteCourse)) {
             valuteCourseService.saveAll(courseConfig.valute().values());
-            valuteCourseService.save(courseConfig.roubleCourse());
+            valuteCourseService.save(courseConfig.buildCourse());
             return getResult(options);
         }
         return new Result(

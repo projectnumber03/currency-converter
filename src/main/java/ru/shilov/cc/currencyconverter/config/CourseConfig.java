@@ -55,7 +55,7 @@ public class CourseConfig {
                 .build();
     }
 
-    public ValuteDetail roubleDetail() {
+    public ValuteDetail buildDetail() {
         final ValuteDetail valuteDetail = valuteDetailService.findByCharCode("RUB");
         final UUID id = Objects.isNull(valuteDetail) ? UUID.randomUUID() : valuteDetail.getId();
         return ValuteDetail.builder()
@@ -66,14 +66,14 @@ public class CourseConfig {
                 .build();
     }
 
-    public ValuteCourse roubleCourse() {
-        final List<ValuteCourse> valuteCourses = valuteCourseService.findByValuteDetail(roubleDetail());
+    public ValuteCourse buildCourse() {
+        final List<ValuteCourse> valuteCourses = valuteCourseService.findByValuteDetail(buildDetail());
         if (!valuteCourses.isEmpty() && valuteCourses.stream().anyMatch(valuteCourseService::isActualCourse)) {
             return valuteCourses.stream().filter(valuteCourseService::isActualCourse).findAny().orElseThrow(RuntimeException::new);
         }
         return ValuteCourse.builder()
                 .id(UUID.randomUUID())
-                .valuteDetail(roubleDetail())
+                .valuteDetail(buildDetail())
                 .date(new Date())
                 .nominal(1)
                 .value(1.0)
@@ -91,9 +91,9 @@ public class CourseConfig {
     public void init() {
         final Map<ValuteDetail, ValuteCourse> valute = valute();
         valuteDetailService.saveAll(valute.keySet());
-        valuteDetailService.save(roubleDetail());
+        valuteDetailService.save(buildDetail());
         valuteCourseService.saveAll(valute.values());
-        valuteCourseService.save(roubleCourse());
+        valuteCourseService.save(buildCourse());
     }
 
 }
